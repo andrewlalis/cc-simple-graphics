@@ -80,11 +80,41 @@ function lib.drawButton(m, x, y, w, h, text, fg, bg)
     local y1 = y
     local x2 = x+w-1
     local y2 = y+h-1
-    local midX = x+math.floor(w/2)-1
-    local midY = y+math.floor(h/2)-1
+    local midX = x+math.floor(w/2)
+    local midY = y+math.floor(h/2)
     lib.fillRect(m, x, y, w, h, bg)
     lib.drawTextCenter(m, midX, midY, text, fg)
     return {x1=x1,y1=y1,x2=x2,y2=y2}
+end
+
+-- Determines if a button is pressed, given the event x and y coordinates and
+-- the button's coordinates.
+function lib.isButtonPressed(x, y, buttonCoords)
+    return x >= buttonCoords.x1 and x <= buttonCoords.x2 and
+        y >= buttonCoords.y1 and y <= buttonCoords.y2
+end
+
+-- Creates a new button registry table, which is used for registering button
+-- positions and callbacks for event handling.
+function lib.createButtonRegistry()
+    return {}
+end
+
+-- Adds a new button to a registry, so that `handleButtonPress` can invoke the
+-- callback if the button is pressed.
+function lib.registerButton(registry, buttonPos, callback)
+    table.insert(registry, {pos=coords,callback=callback})
+end
+
+-- Handles a recent interaction on the screen that's interpreted as a button
+-- press, by looking for registered buttons whose areas include the given X Y
+-- coordinates.
+function lib.handleButtonPress(registry, x, y)
+    for _, button in pairs(registry) do
+        if lib.isButtonPressed(x, y, button.pos) then
+            button.callback()
+        end
+    end
 end
 
 return lib
