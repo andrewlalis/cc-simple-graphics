@@ -80,8 +80,8 @@ function lib.drawButton(m, x, y, w, h, text, fg, bg)
     local y1 = y
     local x2 = x+w-1
     local y2 = y+h-1
-    local midX = x+math.floor(w/2)
-    local midY = y+math.floor(h/2)
+    local midX = x+math.floor((w-1)/2)
+    local midY = y+math.floor((h-1)/2)
     lib.fillRect(m, x, y, w, h, bg)
     lib.drawTextCenter(m, midX, midY, text, fg)
     return {x1=x1,y1=y1,x2=x2,y2=y2}
