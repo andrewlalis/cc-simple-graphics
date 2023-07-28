@@ -25,6 +25,17 @@ function lib.fillRect(m, x, y, w, h, c)
     end
 end
 
+-- Draws the outline of a rectangle from the given x and y coordinates with a
+-- width and height given by w and h respectively. If c is not nil, then the
+-- color of the border is set to c.
+function lib.drawRect(m, x, y, w, h, c)
+    if c ~= nil then m.setBackgroundColor(c) end
+    lib.drawXLine(x, x+w-1, y, c)
+    lib.drawXLine(x, x+w-1, y+h-1, c)
+    lib.drawYLine(y+1, y+h-2, x, c)
+    lib.drawYLine(y+1, y+h-2, x+w-1, c)
+end
+
 -- Draws a horizontal line from x1 to x2 on the given y level.
 function lib.drawXLine(m, x1, x2, y, bg, fg, char)
     char = char or " "
@@ -59,6 +70,21 @@ end
 -- x and y coordinates.
 function lib.drawTextCenter(m, x, y, text, fg, bg)
     lib.drawText(m, x-(#text/2)+1, y, text, fg, bg)
+end
+
+-- Draws a button as a plain rectangle with the given background color, and
+-- centered text drawn with the foreground color. Returns a table containing
+-- x1, y1, x2, y2 coordinates for handling the button's event later.
+function lib.drawButton(m, x, y, w, h, text, fg, bg)
+    local x1 = x
+    local y1 = y
+    local x2 = x+w-1
+    local y2 = y+h-1
+    local midX = x+(w/2)
+    local midY = y+(h/2)
+    lib.fillRect(m, x, y, w, h, bg)
+    lib.drawText(m, midX, midY, text, fg)
+    return {x1=x1,y1=y1,x2=x2,y2=y2}
 end
 
 return lib
