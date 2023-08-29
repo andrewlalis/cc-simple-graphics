@@ -5,6 +5,12 @@ Author: Andrew Lalis <andrewlalisofficial@gmail.com>
 
 local lib = {}
 
+local function tableCount(t)
+    local c = 0
+    for i, item in pairs(t) do c = c + 1 end
+    return c
+end
+
 -- Clears a screen or terminal. If c is not nil then the background color will
 -- be set prior to clearing.
 function lib.clear(m, c)
@@ -115,6 +121,62 @@ function lib.handleButtonPress(registry, x, y)
             button.callback()
         end
     end
+end
+
+-- Creates a "console" to which text can be appended, and it'll be displayed in
+-- a scrolling style, updated whenever new text is added.
+function lib.createConsole(width, height, fg, bg, dir)
+    return {
+        width = width,
+        height = height,
+        dir = dir or "UP",
+        fg = fg or colors.white,
+        bg = bg or colors.black,
+        lines = {}
+    }
+end
+
+-- Appends some text to a console.
+function lib.appendToConsole(console, text)
+    local lines = require "cc.strings".wrap(text, console.width)
+    if console.dir == "DOWN" then
+        for i = #lines, 1, -1 do
+            table.insert(console.lines, 1, lines[i])
+        end
+    elseif console.dir == "UP" then
+        for i = 1, #lines do
+            table.insert(console.lines, 1, lines[i])
+        end
+    else
+        error("Invalid console direction. Should be \"DOWN\" or \"UP\".")
+    end
+    while #console.lines > console.height do
+        table.remove(console.lines)
+    end
+end
+
+-- Draws a console at a given x, y position.
+function lib.drawConsole(m, console, x, y)
+    m.setTextColor(console.fg)
+    m.setBackgroundColor(console.bg)
+    lib.fillRect(m, x, y, console.width, console.height)
+    for i = 1, #console.lines do
+        local lineY
+        if console.dir == "DOWN" then
+            lineY = y + i - 1
+        elseif console.dir == "UP" then
+            lineY = y + console.height - i
+        else
+            error("Invalid console direction. Should be \"DOWN\" or \"UP\".")
+        end
+        m.setCursorPos(x, lineY)
+        m.write(console.lines[i])
+    end
+end
+
+function lib.appendAndDrawConsole(m, console, text, x, y)
+    lib.appendToConsole(console, text)
+    lib.drawConsole(m, console, x, y)
 end
 
 return lib
